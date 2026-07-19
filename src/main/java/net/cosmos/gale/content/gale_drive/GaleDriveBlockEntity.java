@@ -9,11 +9,13 @@ import dev.ryanhcode.sable.api.block.propeller.BlockEntitySubLevelPropellerActor
 import net.cosmos.gale.Config;
 import net.cosmos.gale.registry.ModBlockEntities;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -78,12 +80,13 @@ public class GaleDriveBlockEntity extends net.minecraft.world.level.block.entity
     private float chargeRemaining;
 
     private float previousClientChargeRemaining; // Rendering only
-    public float getRenderedChargeRemaining(float partialTick) {
-        return Mth.lerp(partialTick, previousClientChargeRemaining, chargeRemaining);
-    }
+
+    public float getRenderedChargeRemaining(float partialTick) { return Mth.lerp(partialTick, previousClientChargeRemaining, chargeRemaining); }
 
     // Setup
+    private GaleDriveSoundInstance activeSound; // Client-side only
 
+    // Render bounds — the wind cone projects 4 blocks forward
     public GaleDriveBlockEntity(BlockPos pos, BlockState state) { super(ModBlockEntities.GALE_DRIVE.get(), pos, state); }
 
     static { EXPLOSION_DAMAGE_CALCULATOR = new SimpleExplosionDamageCalculator(true, false, Optional.of(1.22F), BuiltInRegistries.BLOCK.getTag(BlockTags.BLOCKS_WIND_CHARGE_EXPLOSIONS).map(Function.identity())); }
@@ -218,7 +221,23 @@ public class GaleDriveBlockEntity extends net.minecraft.world.level.block.entity
 
         blockEntity.previousClientChargeRemaining = blockEntity.chargeRemaining;
 
+        blockEntity.tickSound();
         blockEntity.spawnWindParticles();
+    }
+
+    private void tickSound() {
+        if (level == null || !level.isClientSide()) return;
+
+        boolean shouldPlay = hasLoadedCharge() && currentOutputThrottle > 0.001F;
+
+        if (shouldPlay) {
+            if (activeSound == null || activeSound.isStopped()) {
+                activeSound = new GaleDriveSoundInstance(this);
+                Minecraft.getInstance().getSoundManager().play(activeSound);
+            }
+        } else if (activeSound != null && !activeSound.isStopped()) {
+            // Let the sound instance fade itself out — it checks isActive each tick
+        }
     }
 
     // Particles
@@ -376,6 +395,15 @@ public class GaleDriveBlockEntity extends net.minecraft.world.level.block.entity
     public void onLoad() {
         super.onLoad();
         previousClientChargeRemaining = chargeRemaining;
+    }
+
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        if (activeSound != null) {
+            Minecraft.getInstance().getSoundManager().stop(activeSound);
+            activeSound = null;
+        }
     }
 
     @Override

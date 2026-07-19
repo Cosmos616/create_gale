@@ -4,6 +4,7 @@ import net.cosmos.gale.registry.ModBlockEntities;
 import net.cosmos.gale.registry.ModBlocks;
 import net.cosmos.gale.registry.ModCreativeModeTabs;
 import net.cosmos.gale.registry.ModItems;
+import net.cosmos.gale.registry.ModSoundEvents;
 import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
 
@@ -28,6 +29,7 @@ public class Gale {
         modEventBus.addListener(this::commonSetup);
 
         ModBlockEntities.register(modEventBus);
+        ModSoundEvents.register(modEventBus);
         ModItems.register(modEventBus);
         ModBlocks.register(modEventBus);
         ModCreativeModeTabs.register(modEventBus);

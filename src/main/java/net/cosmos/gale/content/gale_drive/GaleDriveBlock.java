@@ -91,18 +91,10 @@ public class GaleDriveBlock extends BaseEntityBlock {
     }
 
 
-    /**
-     * Makes the front of the block face toward the player.
-     *
-     * Clicking a wall:
-     *     the front faces toward the player.
-     *
-     * Clicking the floor:
-     *     the front faces upward.
-     *
-     * Clicking the ceiling:
-     *     the front faces downward.
-     */
+    /// Makes the front of the block face toward the player.
+    /// Clicking a wall: the front faces toward the player.
+    /// Clicking the floor: the front faces upward.
+    /// Clicking the ceiling: the front faces downward.
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
@@ -128,10 +120,7 @@ public class GaleDriveBlock extends BaseEntityBlock {
             BlockState newState,
             boolean movedByPiston
     ) {
-        if (!state.is(newState.getBlock())
-                && !level.isClientSide()
-                && level.getBlockEntity(pos) instanceof GaleDriveBlockEntity galeDrive) {
-
+        if (!state.is(newState.getBlock()) && !level.isClientSide() && level.getBlockEntity(pos) instanceof GaleDriveBlockEntity galeDrive) {
             ItemStackHandler inventory = galeDrive.getInventory();
 
             List<ItemStack> drops = new ArrayList<>();

@@ -1,0 +1,12 @@
+{
+  "block.gale_drive.loop": {
+    "sounds": [
+      {
+        "name": "gale:block/gale_drive/loop",
+        "stream": true,
+        "attenuation_distance": 32
+      }
+    ],
+    "subtitle": "gale.subtitle.gale_drive.loop"
+  }
+}

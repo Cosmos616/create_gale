@@ -4,5 +4,6 @@
   "item.gale.example_item": "Example Item",
   "gale.gale_drive.tooltip.thrust": "Thrust: ",
   "gale.gale_drive.tooltip.airflow": "Airflow: ",
-  "gale.gale_drive.tooltip.wind_charges": "Wind Charges: "
+  "gale.gale_drive.tooltip.wind_charges": "Wind Charges: ",
+  "gale.subtitle.gale_drive.loop": "Gale Drive whooshes"
 }
