@@ -30,19 +30,20 @@ public class GaleDriveRenderer
         implements BlockEntityRenderer<GaleDriveBlockEntity> {
 
     private final ModelBlockRenderer modelRenderer;
-    private static final float MAX_PLATE_TRAVEL = 4.0F / 16.0F;
-    private static final float MAX_PETAL_ANGLE = 35.0F;
     private final EntityRenderDispatcher entityRenderDispatcher;
 
-    private static final float WIND_TOTAL_LENGTH = 4.0F; // 4 blocks
-    private static final float WIND_START_WIDTH = 0.8F;
-    private static final float WIND_END_WIDTH = 2F;
-    private static final int WIND_SEGMENTS = 4;
+    private static final ResourceLocation WIND_TEXTURE = Gale.GetResource("textures/entity/gale_drive_wind.png");
+    private static final float WIND_TEXTURE_SIZE = 128.0F;
 
     private static final float SPRING_LENGTH = 9.0F / 16.0F;
 
-    private static final ResourceLocation WIND_TEXTURE = ResourceLocation.fromNamespaceAndPath(Gale.MOD_ID, "textures/entity/gale_drive_wind.png");
-    private static final float WIND_TEXTURE_SIZE = 128.0F;
+    private static final float MAX_PLATE_TRAVEL = 4.0F / 16.0F;
+    private static final float MAX_PETAL_ANGLE = 35.0F;
+
+    private static final float WIND_TOTAL_LENGTH = 4.0F;
+    private static final float WIND_START_WIDTH = 0.8F;
+    private static final float WIND_END_WIDTH = 2F;
+    private static final int WIND_SEGMENTS = 4;
 
     @Nullable
     private WindCharge renderedWindCharge;
@@ -77,26 +78,8 @@ public class GaleDriveRenderer
         poseStack.pushPose();
         rotateToFacing(poseStack, facing);
 
-        renderSpring(
-                compressionOffset,
-                state,
-                poseStack,
-                bufferSource,
-                packedLight,
-                packedOverlay
-        );
-
-        renderMovingAssembly(
-                blockEntity,
-                partialTick,
-                compressionOffset,
-                petalAngle- 10,
-                state,
-                poseStack,
-                bufferSource,
-                packedLight,
-                packedOverlay
-        );
+        renderSpring(compressionOffset, state, poseStack, bufferSource, packedLight, packedOverlay);
+        renderMovingAssembly(blockEntity, partialTick, compressionOffset, petalAngle- 10, state, poseStack, bufferSource, packedLight, packedOverlay);
 
         poseStack.popPose();
     }
@@ -104,24 +87,19 @@ public class GaleDriveRenderer
     private void renderSpring(float compressionOffset, BlockState state, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
         poseStack.pushPose();
 
-        float compressedLength = SPRING_LENGTH - compressionOffset;
-        float zScale = Mth.clamp(compressedLength / SPRING_LENGTH, 0.01F, 1.0F);
-        float pivotX = 0.5F;
-        float pivotY = 0.5F;
-        float pivotZ = 0.5F;
+        final float compressedLength = SPRING_LENGTH - compressionOffset;
+        final float zScale = Mth.clamp(compressedLength / SPRING_LENGTH, 0.01F, 1.0F);
+
+        final float pivotX = 0.5F;
+        final float pivotY = 0.5F;
+        final float pivotZ = 0.5F;
 
         poseStack.translate(pivotX, pivotY, pivotZ);
         poseStack.scale(1.0F, 1.0F, zScale);
         poseStack.translate(-pivotX, -pivotY, -pivotZ);
 
-        renderModel(
-                ModModels.galeDriveSpring,
-                state,
-                poseStack,
-                bufferSource,
-                packedLight,
-                packedOverlay
-        );
+        renderModel(ModModels.galeDriveSpring, state, poseStack, bufferSource, packedLight, packedOverlay);
+
         poseStack.popPose();
     }
 
@@ -130,86 +108,34 @@ public class GaleDriveRenderer
         poseStack.pushPose();
         poseStack.translate(0.0F, 0.0F, -compressionOffset);
 
-        renderWindChargeEntity(
-                blockEntity,
-                partialTick,
-                poseStack,
-                bufferSource,
-                packedLight
-        );
+        renderWindChargeEntity(blockEntity, partialTick, poseStack, bufferSource, packedLight);
+        renderModel(ModModels.galeDrivePlate, state, poseStack, bufferSource, packedLight, packedOverlay);
 
-        renderModel(
-                ModModels.galeDrivePlate,
-                state,
-                poseStack,
-                bufferSource,
-                packedLight,
-                packedOverlay
-        );
+        renderTopPetal(petalAngle, state, poseStack, bufferSource, packedLight, packedOverlay);
+        renderBottomPetal(petalAngle, state, poseStack, bufferSource, packedLight, packedOverlay);
+        renderLeftPetal(petalAngle, state, poseStack, bufferSource, packedLight, packedOverlay);
+        renderRightPetal(petalAngle, state, poseStack, bufferSource, packedLight, packedOverlay);
 
-        renderTopPetal(
-                petalAngle,
-                state,
-                poseStack,
-                bufferSource,
-                packedLight,
-                packedOverlay
-        );
+        renderWindCone(blockEntity, partialTick, poseStack, bufferSource, packedLight, packedOverlay);
 
-        renderBottomPetal(
-                petalAngle,
-                state,
-                poseStack,
-                bufferSource,
-                packedLight,
-                packedOverlay
-        );
-
-        renderLeftPetal(
-                petalAngle,
-                state,
-                poseStack,
-                bufferSource,
-                packedLight,
-                packedOverlay
-        );
-
-        renderRightPetal(
-                petalAngle,
-                state,
-                poseStack,
-                bufferSource,
-                packedLight,
-                packedOverlay
-        );
-
-        renderWindCone(
-                blockEntity,
-                partialTick,
-                poseStack,
-                bufferSource,
-                packedLight,
-                packedOverlay
-        );
         poseStack.popPose();
     }
 
     private void renderWindChargeEntity(GaleDriveBlockEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-        float chargeRemaining = Mth.clamp(blockEntity.getRenderedChargeRemaining(partialTick), 0.0F, 1.0F
-        );
+        float chargeRemaining = Mth.clamp(blockEntity.getRenderedChargeRemaining(partialTick), 0.0F, 1.0F );
 
         if (chargeRemaining <= 0.0F) return;
-        WindCharge windCharge = getRenderedWindCharge(blockEntity);
+        final WindCharge windCharge = getRenderedWindCharge(blockEntity);
 
         if (windCharge == null) return;
 
         poseStack.pushPose();
         poseStack.translate(8.0F / 16.0F, 8.0F / 16.0F, 23.0F / 16.0F);
 
-        float visualCharge = Mth.sqrt(chargeRemaining);
-        float minScale = 0.5F;
-        float maxScale = 1F;
-        float scale = Mth.lerp(minScale, maxScale, visualCharge);
+        final float visualCharge = Mth.sqrt(chargeRemaining);
+        final float minScale = 0.5F;
+        final float maxScale = 1F;
+        final float scale = Mth.lerp(minScale, maxScale, visualCharge);
         poseStack.scale(scale, -scale, scale);
 
         windCharge.tickCount = blockEntity.getLevel() == null ? 0 : (int) blockEntity.getLevel().getGameTime();
@@ -222,6 +148,7 @@ public class GaleDriveRenderer
     }
 
 
+    // TODO: merge these into a single method
     private void renderTopPetal(float angle, BlockState state, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
 
         renderRotatedPetal(
@@ -238,7 +165,6 @@ public class GaleDriveRenderer
                 packedOverlay
         );
     }
-
     private void renderBottomPetal(float angle, BlockState state, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
         renderRotatedPetal(
                 ModModels.galeDrivePetalBottom,
@@ -254,7 +180,6 @@ public class GaleDriveRenderer
                 packedOverlay
         );
     }
-
     private void renderLeftPetal(float angle, BlockState state, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
         renderRotatedPetal(
                 ModModels.galeDrivePetalLeft,
@@ -270,7 +195,6 @@ public class GaleDriveRenderer
                 packedOverlay
         );
     }
-
     private void renderRightPetal(float angle, BlockState state, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
         renderRotatedPetal(
                 ModModels.galeDrivePetalRight,
@@ -289,23 +213,15 @@ public class GaleDriveRenderer
 
 
     private void renderRotatedPetal(BakedModel model, float pivotX, float pivotY, float pivotZ, Axis axis, float angleDegrees, BlockState state, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-        if (model == null) {
-            return;
-        }
+        if (model == null) return;
 
         poseStack.pushPose();
         poseStack.translate(pivotX, pivotY, pivotZ);
         poseStack.mulPose(axis.rotationDegrees(angleDegrees));
         poseStack.translate(-pivotX, -pivotY, -pivotZ);
 
-        renderModel(
-                model,
-                state,
-                poseStack,
-                bufferSource,
-                packedLight,
-                packedOverlay
-        );
+        renderModel(model, state, poseStack, bufferSource, packedLight, packedOverlay);
+
         poseStack.popPose();
     }
 
@@ -330,36 +246,26 @@ public class GaleDriveRenderer
     }
 
     private void renderWindCone(GaleDriveBlockEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-        Level level = blockEntity.getLevel();
+        final Level level = blockEntity.getLevel();
         if (level == null) return;
 
-        float output = Mth.clamp(blockEntity.getRenderedOutput(partialTick), 0.0F, 1.0F);
+        final float output = Mth.clamp(blockEntity.getRenderedOutput(partialTick), 0.0F, 1.0F);
         if (output <= 0.001F || !blockEntity.hasLoadedCharge()) return;
 
-        float time = level.getGameTime() + partialTick;
-        float scrollSpeed = Mth.lerp(0.01F, 0.05F, output);
+        final float time = level.getGameTime() + partialTick;
+        final float scrollSpeed = Mth.lerp(0.01F, 0.05F, output);
 
-        float uOffset = 0F;
-        float vOffset = time * scrollSpeed;
+        final float uOffset = 0F;
+        final float vOffset = time * scrollSpeed;
 
-        RenderType renderType = RenderType.breezeWind(WIND_TEXTURE, uOffset, vOffset);
+        final RenderType renderType = RenderType.breezeWind(WIND_TEXTURE, uOffset, vOffset);
+        final VertexConsumer consumer = bufferSource.getBuffer(renderType);
 
-        VertexConsumer consumer = bufferSource.getBuffer(renderType);
         poseStack.pushPose();
 
-        /*
-         * Start from the center of the nozzle/plate area.
-         */
         poseStack.translate(8.0F / 16.0F, 8.0F / 16.0F, 20.0F / 16.0F);
 
-        renderWindSegments(
-                poseStack,
-                consumer,
-                output,
-                packedLight,
-                packedOverlay,
-                time
-        );
+        renderWindSegments(poseStack, consumer, output, packedLight, packedOverlay, time);
 
         poseStack.popPose();
     }
@@ -368,19 +274,16 @@ public class GaleDriveRenderer
         float segmentLength = WIND_TOTAL_LENGTH / WIND_SEGMENTS;
 
         for (int segment = 0; segment < WIND_SEGMENTS; segment++) {
-            float t = (float) segment / (float) WIND_SEGMENTS;
-            t = Mth.clamp(t,0f,1f);
+            final float t = Mth.clamp(((float) segment / (float) WIND_SEGMENTS), 0f,1f);
 
-            float width = Mth.lerp(t, WIND_START_WIDTH, WIND_END_WIDTH);
-            float halfWidth = (width * 0.5f) * output;
-            float z0 = segment * segmentLength * output;
-            float z1 = (segment + 1.0F) * segmentLength * output;
-            float fade = ((float) segment / (float) WIND_SEGMENTS);
-            float alpha = Mth.clamp(output * fade, 0.2F, 0.4F);
+            final float width = Mth.lerp(t, WIND_START_WIDTH, WIND_END_WIDTH);
+            final float halfWidth = (width * 0.5f) * output;
+            final float z0 = segment * segmentLength * output;
+            final float z1 = (segment + 1.0F) * segmentLength * output;
+            final float fade = ((float) segment / (float) WIND_SEGMENTS);
+            final float alpha = Mth.clamp(output * fade, 0.2F, 0.4F);
 
-            int alphaByte = Mth.clamp((int) (alpha * 255.0F), 0, 255);
-
-            float secondtime = time + segment*17;
+            final int alphaByte = Mth.clamp((int) (alpha * 255.0F), 0, 255);
 
             renderWindBoxSegment(
                     poseStack,
@@ -393,7 +296,7 @@ public class GaleDriveRenderer
                     alphaByte,
                     packedLight,
                     packedOverlay,
-                    secondtime
+                    time + segment*17
             );
         }
     }
@@ -404,14 +307,17 @@ public class GaleDriveRenderer
     private void renderWindBoxSegment(PoseStack poseStack, VertexConsumer consumer, float z0, float z1, float halfWidth, float fullWidth, int segmentIndex, int alpha, int packedLight, int packedOverlay, float time) {
         poseStack.pushPose();
         poseStack.scale( 1 + Mth.sin(time*scale_freq)*scale_amplitude,1 + Mth.sin(time*scale_freq)*scale_amplitude,1 + Mth.sin(time*scale_freq)*scale_amplitude);
+
         // Top face
         renderWindFace(
                 poseStack,
                 consumer,
+
                 new Vector3f(-halfWidth, -halfWidth, z0),
                 new Vector3f( halfWidth, -halfWidth, z0),
                 new Vector3f( halfWidth, -halfWidth, z1),
                 new Vector3f(-halfWidth, -halfWidth, z1),
+
                 0,
                 segmentIndex,
                 alpha,
@@ -423,10 +329,12 @@ public class GaleDriveRenderer
         renderWindFace(
                 poseStack,
                 consumer,
+
                 new Vector3f(halfWidth, -halfWidth, z0),
                 new Vector3f(halfWidth,  halfWidth, z0),
                 new Vector3f(halfWidth,  halfWidth, z1),
                 new Vector3f(halfWidth, -halfWidth, z1),
+
                 1,
                 segmentIndex,
                 alpha,
@@ -438,10 +346,12 @@ public class GaleDriveRenderer
         renderWindFace(
                 poseStack,
                 consumer,
+
                 new Vector3f( halfWidth, halfWidth, z0),
                 new Vector3f(-halfWidth, halfWidth, z0),
                 new Vector3f(-halfWidth, halfWidth, z1),
                 new Vector3f( halfWidth, halfWidth, z1),
+
                 2,
                 segmentIndex,
                 alpha,
@@ -453,130 +363,61 @@ public class GaleDriveRenderer
         renderWindFace(
                 poseStack,
                 consumer,
+
                 new Vector3f(-halfWidth,  halfWidth, z0),
                 new Vector3f(-halfWidth, -halfWidth, z0),
                 new Vector3f(-halfWidth, -halfWidth, z1),
                 new Vector3f(-halfWidth,  halfWidth, z1),
+
                 3,
                 segmentIndex,
                 alpha,
                 packedLight,
                 packedOverlay
         );
+
         poseStack.popPose();
     }
 
     private void renderWindFace(PoseStack poseStack, VertexConsumer consumer, Vector3f a, Vector3f b, Vector3f c, Vector3f d, int faceIndex, int segmentIndex, int alpha, int packedLight, int packedOverlay) {
-        float faceWidthPixels = new Vector3f(b).sub(a).length() * 16.0F;
-        float faceLengthPixels = new Vector3f(c).sub(b).length() * 16.0F;
-        float uSize = faceLengthPixels / WIND_TEXTURE_SIZE;
-        float vSize = faceWidthPixels / WIND_TEXTURE_SIZE;
+        final float faceWidthPixels = new Vector3f(b).sub(a).length() * 16.0F;
+        final float faceLengthPixels = new Vector3f(c).sub(b).length() * 16.0F;
+        final float uSize = faceLengthPixels / WIND_TEXTURE_SIZE;
+        final float vSize = faceWidthPixels / WIND_TEXTURE_SIZE;
 
-        float u0 = faceIndex * uSize;
-        float u1 = u0 + uSize;
-        float v0 = segmentIndex * vSize;
-        float v1 = v0 + vSize;
+        final float u0 = faceIndex * uSize;
+        final float u1 = u0 + uSize;
+        final float v0 = segmentIndex * vSize;
+        final float v1 = v0 + vSize;
 
-        Vector3f normal = calculateNormal(a, b, c);
+        final Vector3f normal = calculateNormal(a, b, c);
+        final Vector3f reverseNormal = new Vector3f(normal).negate();
 
         // Front
-        addWindVertex(
-                consumer, poseStack,
-                a,
-                u0, v0,
-                normal,
-                alpha,
-                packedLight,
-                packedOverlay
-        );
-
-        addWindVertex(
-                consumer, poseStack,
-                b,
-                u0, v1,
-                normal,
-                alpha,
-                packedLight,
-                packedOverlay
-        );
-
-        addWindVertex(
-                consumer, poseStack,
-                c,
-                u1, v1,
-                normal,
-                alpha,
-                packedLight,
-                packedOverlay
-        );
-
-        addWindVertex(
-                consumer, poseStack,
-                d,
-                u1, v0,
-                normal,
-                alpha,
-                packedLight,
-                packedOverlay
-        );
+        addWindVertex(consumer, poseStack, a, u0, v0, normal, alpha, packedLight, packedOverlay);
+        addWindVertex(consumer, poseStack, b, u0, v1, normal, alpha, packedLight, packedOverlay);
+        addWindVertex(consumer, poseStack, c, u1, v1, normal, alpha, packedLight, packedOverlay);
+        addWindVertex(consumer, poseStack, d, u1, v0, normal, alpha, packedLight, packedOverlay);
 
         // Back
-        Vector3f reverseNormal = new Vector3f(normal).negate();
-
-        addWindVertex(
-                consumer, poseStack,
-                d,
-                u1, v0,
-                reverseNormal,
-                alpha,
-                packedLight,
-                packedOverlay
-        );
-
-        addWindVertex(
-                consumer, poseStack,
-                c,
-                u1, v1,
-                reverseNormal,
-                alpha,
-                packedLight,
-                packedOverlay
-        );
-
-        addWindVertex(
-                consumer, poseStack,
-                b,
-                u0, v1,
-                reverseNormal,
-                alpha,
-                packedLight,
-                packedOverlay
-        );
-
-        addWindVertex(
-                consumer, poseStack,
-                a,
-                u0, v0,
-                reverseNormal,
-                alpha,
-                packedLight,
-                packedOverlay
-        );
+        addWindVertex(consumer, poseStack, d, u1, v0, reverseNormal, alpha, packedLight, packedOverlay);
+        addWindVertex(consumer, poseStack, c, u1, v1, reverseNormal, alpha, packedLight, packedOverlay);
+        addWindVertex(consumer, poseStack, b, u0, v1, reverseNormal, alpha, packedLight, packedOverlay);
+        addWindVertex(consumer, poseStack, a, u0, v0, reverseNormal, alpha, packedLight, packedOverlay);
     }
 
     private void addWindVertex(VertexConsumer consumer, PoseStack poseStack, Vector3f position, float u, float v, Vector3f normal, int alpha, int packedLight, int packedOverlay) {
-        consumer.addVertex(poseStack.last(), position.x(), position.y(), position.z())
-                .setColor(255, 255, 255, alpha)
-                .setUv(u, v)
-                .setOverlay(packedOverlay)
-                .setLight(packedLight)
-                .setNormal(poseStack.last(), normal.x(), normal.y(), normal.z()
-                );
+        consumer.addVertex(poseStack.last(), position.x(), position.y(), position.z());
+        consumer.setColor(255, 255, 255, alpha);
+        consumer.setUv(u, v);
+        consumer.setOverlay(packedOverlay);
+        consumer.setLight(packedLight);
+        consumer.setNormal(poseStack.last(), normal.x(), normal.y(), normal.z());
     }
 
     private Vector3f calculateNormal(Vector3f a, Vector3f b, Vector3f c) {
-        Vector3f edgeAB = new Vector3f(b).sub(a);
-        Vector3f edgeAC = new Vector3f(c).sub(a);
+        final Vector3f edgeAB = new Vector3f(b).sub(a);
+        final Vector3f edgeAC = new Vector3f(c).sub(a);
         return edgeAB.cross(edgeAC).normalize();
     }
 

@@ -12,20 +12,15 @@ import net.neoforged.neoforge.client.event.ModelEvent;
 )
 public final class ModModelEvents {
 
-    private ModModelEvents() {
-    }
+    private ModModelEvents() { }
 
     @SubscribeEvent
-    public static void registerAdditionalModels(
-            ModelEvent.RegisterAdditional event
-    ) {
+    public static void registerAdditionalModels(ModelEvent.RegisterAdditional event) {
         ModModels.registerAdditionalModels(event);
     }
 
     @SubscribeEvent
-    public static void modifyBakingResult(
-            ModelEvent.ModifyBakingResult event
-    ) {
+    public static void modifyBakingResult(ModelEvent.ModifyBakingResult event) {
         ModModels.collectBakedModels(event);
     }
 }

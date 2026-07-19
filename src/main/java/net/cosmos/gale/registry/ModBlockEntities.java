@@ -13,15 +13,11 @@ public class ModBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
             DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, Gale.MOD_ID);
 
-    public static final Supplier<BlockEntityType<GaleDriveBlockEntity>>
-            GALE_DRIVE =
-            BLOCK_ENTITIES.register(
-                    "gale_drive",
-                    () -> BlockEntityType.Builder.of(
-                            GaleDriveBlockEntity::new,
-                            ModBlocks.GALE_DRIVE.get()
-                    ).build(null)
-            );
+    public static final Supplier<BlockEntityType<GaleDriveBlockEntity>> GALE_DRIVE =
+            BLOCK_ENTITIES.register("gale_drive", () -> BlockEntityType.Builder.of(
+                    GaleDriveBlockEntity::new,
+                    ModBlocks.GALE_DRIVE.get()
+            ).build(null));
 
     public static void register(IEventBus eventBus){
         BLOCK_ENTITIES.register(eventBus);

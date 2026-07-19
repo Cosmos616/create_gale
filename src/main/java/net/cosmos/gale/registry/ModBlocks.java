@@ -17,14 +17,7 @@ import java.util.function.Supplier;
 public class ModBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Gale.MOD_ID);
 
-
-    public static final DeferredBlock<Block> GALE_DRIVE = RegisterBlock("gale_drive", () ->
-            new GaleDriveBlock(BlockBehaviour.Properties.of()
-                    .sound(SoundType.NETHERITE_BLOCK)
-                    .noOcclusion()
-            )
-    );
-
+    public static final DeferredBlock<Block> GALE_DRIVE = RegisterBlock("gale_drive", () -> new GaleDriveBlock(BlockBehaviour.Properties.of().sound(SoundType.NETHERITE_BLOCK).noOcclusion()));
 
     private static <T extends Block> DeferredBlock<T> RegisterBlock(String name, Supplier<T> block) {
         DeferredBlock<T> toReturn = BLOCKS.register(name,block);

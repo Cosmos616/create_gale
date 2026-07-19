@@ -13,16 +13,10 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 )
 public final class ModRendererEvents {
 
-    private ModRendererEvents() {
-    }
+    private ModRendererEvents() { }
 
     @SubscribeEvent
-    public static void registerRenderers(
-            EntityRenderersEvent.RegisterRenderers event
-    ) {
-        event.registerBlockEntityRenderer(
-                ModBlockEntities.GALE_DRIVE.get(),
-                GaleDriveRenderer::new
-        );
+    public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerBlockEntityRenderer( ModBlockEntities.GALE_DRIVE.get(), GaleDriveRenderer::new);
     }
 }
