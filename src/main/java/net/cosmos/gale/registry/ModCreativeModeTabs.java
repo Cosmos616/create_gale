@@ -19,6 +19,7 @@ public class ModCreativeModeTabs {
                     .icon(() -> ModBlocks.GALE_DRIVE.get().asItem().getDefaultInstance())
                     .displayItems((params, output) -> {
                         output.accept(ModBlocks.GALE_DRIVE.get());
+                        output.accept(ModBlocks.PNEUMATIC_PIPE);
                     })
                     .build()
     );
