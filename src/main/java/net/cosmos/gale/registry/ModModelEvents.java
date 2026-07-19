@@ -1,4 +1,4 @@
-package net.cosmos.gale.client;
+package net.cosmos.gale.registry;
 
 import net.cosmos.gale.Gale;
 import net.neoforged.api.distmarker.Dist;

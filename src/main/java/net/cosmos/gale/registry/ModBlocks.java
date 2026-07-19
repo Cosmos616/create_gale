@@ -1,7 +1,7 @@
-package net.cosmos.gale.blocks;
+package net.cosmos.gale.registry;
 
 import net.cosmos.gale.Gale;
-import net.cosmos.gale.items.ModItems;
+import net.cosmos.gale.content.gale_drive.GaleDriveBlock;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;

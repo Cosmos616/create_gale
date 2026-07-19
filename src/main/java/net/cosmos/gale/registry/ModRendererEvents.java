@@ -1,8 +1,7 @@
-package net.cosmos.gale.client;
+package net.cosmos.gale.registry;
 
 import net.cosmos.gale.Gale;
-import net.cosmos.gale.blockentities.ModBlockEntities;
-import net.cosmos.gale.client.rendering.GaleDriveRenderer;
+import net.cosmos.gale.content.gale_drive.GaleDriveRenderer;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;

@@ -1,4 +1,4 @@
-package net.cosmos.gale.items;
+package net.cosmos.gale.registry;
 
 import net.cosmos.gale.Gale;
 import net.neoforged.bus.api.IEventBus;

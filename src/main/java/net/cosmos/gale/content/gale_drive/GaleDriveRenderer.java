@@ -1,12 +1,10 @@
-package net.cosmos.gale.client.rendering;
+package net.cosmos.gale.content.gale_drive;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.cosmos.gale.Gale;
-import net.cosmos.gale.blockentities.GaleDriveBlockEntity;
-import net.cosmos.gale.blocks.GaleDriveBlock;
-import net.cosmos.gale.client.ModModels;
+import net.cosmos.gale.registry.ModModels;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -23,7 +21,6 @@ import net.minecraft.world.entity.projectile.windcharge.WindCharge;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import org.joml.Vector3f;
 

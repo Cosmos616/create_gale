@@ -1,8 +1,7 @@
-package net.cosmos.gale.events;
+package net.cosmos.gale.registry;
 
 import net.cosmos.gale.Gale;
-import net.cosmos.gale.blockentities.GaleDriveBlockEntity;
-import net.cosmos.gale.blockentities.ModBlockEntities;
+import net.cosmos.gale.content.gale_drive.GaleDriveBlockEntity;
 import net.minecraft.core.Direction;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;

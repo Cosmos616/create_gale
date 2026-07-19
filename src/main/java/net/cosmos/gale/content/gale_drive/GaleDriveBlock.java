@@ -1,12 +1,7 @@
-package net.cosmos.gale.blocks;
+package net.cosmos.gale.content.gale_drive;
 
 import com.mojang.serialization.MapCodec;
-import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
-import dev.eriksonn.aeronautics.content.blocks.propeller.bearing.propeller_bearing.PropellerBearingBlock;
-import dev.eriksonn.aeronautics.content.blocks.propeller.behaviour.PropellerActorBehaviour;
-import dev.ryanhcode.sable.api.block.propeller.BlockEntitySubLevelPropellerActor;
-import net.cosmos.gale.blockentities.GaleDriveBlockEntity;
-import net.cosmos.gale.blockentities.ModBlockEntities;
+import net.cosmos.gale.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -14,7 +9,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.windcharge.WindCharge;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -44,8 +38,7 @@ import java.util.List;
 
 public class GaleDriveBlock extends BaseEntityBlock {
 
-    public static final MapCodec<GaleDriveBlock> CODEC =
-            simpleCodec(GaleDriveBlock::new);
+    public static final MapCodec<GaleDriveBlock> CODEC = simpleCodec(GaleDriveBlock::new);
 
     /**
      * The direction the front/petaled plate points.
@@ -53,10 +46,8 @@ public class GaleDriveBlock extends BaseEntityBlock {
      * The Gale Drive's physical thrust will later be applied in the
      * opposite direction.
      */
-    public static final DirectionProperty FACING =
-            BlockStateProperties.FACING;
-    public static final BooleanProperty POWERED =
-            BlockStateProperties.POWERED;
+    public static final DirectionProperty FACING = BlockStateProperties.FACING;
+    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
     public GaleDriveBlock(Properties properties) {
         super(properties);
@@ -91,23 +82,12 @@ public class GaleDriveBlock extends BaseEntityBlock {
                 movedByPiston
         );
 
-        if (level.isClientSide()) {
-            return;
-        }
+        if (level.isClientSide()) return;
 
         boolean powered = level.hasNeighborSignal(pos);
 
-        if (state.getValue(POWERED) != powered) {
-            level.setBlock(
-                    pos,
-                    state.setValue(POWERED, powered),
-                    Block.UPDATE_ALL
-            );
-        }
-
-        if (level.getBlockEntity(pos) instanceof GaleDriveBlockEntity galeDrive) {
-            galeDrive.updateRedstoneStrength();
-        }
+        if (state.getValue(POWERED) != powered) level.setBlock(pos, state.setValue(POWERED, powered), Block.UPDATE_ALL);
+        if (level.getBlockEntity(pos) instanceof GaleDriveBlockEntity galeDrive) galeDrive.updateRedstoneStrength();
     }
 
 
@@ -126,25 +106,17 @@ public class GaleDriveBlock extends BaseEntityBlock {
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        Direction facing =
-                context.getNearestLookingDirection();
+        Direction facing = context.getNearestLookingDirection();
 
-        if (context.isSecondaryUseActive()) {
-            facing = facing.getOpposite();
-        }
+        if (context.isSecondaryUseActive()) facing = facing.getOpposite();
 
         return defaultBlockState()
                 .setValue(FACING, facing)
-                .setValue(
-                        POWERED,
-                        context.getLevel().hasNeighborSignal(context.getClickedPos())
-                );
+                .setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
     @Override
-    protected void createBlockStateDefinition(
-            StateDefinition.Builder<net.minecraft.world.level.block.Block, BlockState> builder
-    ) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<net.minecraft.world.level.block.Block, BlockState> builder) {
         builder.add(FACING, POWERED);
     }
 

@@ -1,7 +1,7 @@
-package net.cosmos.gale.blockentities;
+package net.cosmos.gale.registry;
 
 import net.cosmos.gale.Gale;
-import net.cosmos.gale.blocks.ModBlocks;
+import net.cosmos.gale.content.gale_drive.GaleDriveBlockEntity;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
