@@ -6,6 +6,7 @@ import dev.eriksonn.aeronautics.content.blocks.propeller.bearing.propeller_beari
 import dev.eriksonn.aeronautics.content.particle.PropellerAirParticleData;
 import dev.ryanhcode.sable.api.block.propeller.BlockEntityPropeller;
 import dev.ryanhcode.sable.api.block.propeller.BlockEntitySubLevelPropellerActor;
+import net.cosmos.gale.Config;
 import net.cosmos.gale.registry.ModBlockEntities;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -51,14 +52,6 @@ public class GaleDriveBlockEntity extends net.minecraft.world.level.block.entity
     private float targetOutputThrottle;
     public float getTargetOutputThrottle() { return targetOutputThrottle; }
 
-    // Constants
-
-    private static final float OUTPUT_CHANGE_PER_TICK = 0.05F;
-
-    private static final double MAX_THRUST = 600.0;
-    private static final double MAX_AIRFLOW = 60.0;
-    private static final float CHARGE_CAPACITY = 1.0F;
-
     // Inventory
 
     public static final int WIND_CHARGE_SLOT = 0;
@@ -81,7 +74,6 @@ public class GaleDriveBlockEntity extends net.minecraft.world.level.block.entity
     }
 
     // Charge
-    private static final float FULL_POWER_DRAIN_PER_TICK = CHARGE_CAPACITY / 200.0F;
 
     private float chargeRemaining;
 
@@ -111,13 +103,13 @@ public class GaleDriveBlockEntity extends net.minecraft.world.level.block.entity
         return currentOutputThrottle > 0.001F && hasLoadedCharge();
     }
     @Override public double getThrust() {
-        return currentOutputThrottle * MAX_THRUST;
+        return currentOutputThrottle * Config.MAX_THRUST.getAsDouble();
     }
     @Override public double getAirflow() {
-        return currentOutputThrottle * MAX_AIRFLOW;
+        return currentOutputThrottle * Config.MAX_AIRFLOW.getAsDouble();
     }
     @Override public double getScaledThrust() {
-        return currentOutputThrottle * MAX_THRUST;
+        return currentOutputThrottle * Config.MAX_THRUST.getAsDouble();
     }
 
     // BlockState
@@ -143,7 +135,7 @@ public class GaleDriveBlockEntity extends net.minecraft.world.level.block.entity
         tooltip.add(
                 Component.literal("     ")
                         .append(
-                                Component.literal("Thrust: ")
+                                Component.translatable("gale.gale_drive.tooltip.thrust")
                                         .withStyle(ChatFormatting.GRAY)
                         )
                         .append(
@@ -155,7 +147,7 @@ public class GaleDriveBlockEntity extends net.minecraft.world.level.block.entity
         tooltip.add(
                 Component.literal("     ")
                         .append(
-                                Component.literal("Airflow: ")
+                                Component.translatable("gale.gale_drive.tooltip.airflow")
                                         .withStyle(ChatFormatting.GRAY)
                         )
                         .append(
@@ -169,7 +161,7 @@ public class GaleDriveBlockEntity extends net.minecraft.world.level.block.entity
         tooltip.add(
                 Component.literal("     ")
                         .append(
-                                Component.literal("Wind Charges: ")
+                                Component.translatable("gale.gale_drive.tooltip.wind_charges")
                                         .withStyle(ChatFormatting.GRAY)
                         )
                         .append(
@@ -207,11 +199,11 @@ public class GaleDriveBlockEntity extends net.minecraft.world.level.block.entity
         // Do stuff with that throttle
         blockEntity.previousOutputThrottle = blockEntity.currentOutputThrottle;
         blockEntity.targetOutputThrottle = hasFuel ? throttle : 0.0F;
-        blockEntity.currentOutputThrottle = Mth.approach(blockEntity.currentOutputThrottle, blockEntity.targetOutputThrottle, OUTPUT_CHANGE_PER_TICK);
+        blockEntity.currentOutputThrottle = Mth.approach(blockEntity.currentOutputThrottle, blockEntity.targetOutputThrottle, (float) Config.OUTPUT_RAMP_SPEED.getAsDouble());
 
         // Lower charge value
         if (hasThrottle && hasFuel) {
-            blockEntity.chargeRemaining -= FULL_POWER_DRAIN_PER_TICK * throttle;
+            blockEntity.chargeRemaining -= (float)(Config.CHARGE_CAPACITY.getAsDouble() / Config.CHARGE_DRAIN_DIVISOR.getAsDouble()) * throttle;
             blockEntity.chargeRemaining = Math.max(0.0f, blockEntity.chargeRemaining);
             blockEntity.setChanged();
         }
@@ -222,7 +214,7 @@ public class GaleDriveBlockEntity extends net.minecraft.world.level.block.entity
 
     public static void clientTick(Level level, BlockPos pos, BlockState state, GaleDriveBlockEntity blockEntity) {
         blockEntity.previousOutputThrottle = blockEntity.currentOutputThrottle;
-        blockEntity.currentOutputThrottle = Mth.approach(blockEntity.currentOutputThrottle, blockEntity.targetOutputThrottle, OUTPUT_CHANGE_PER_TICK);
+        blockEntity.currentOutputThrottle = Mth.approach(blockEntity.currentOutputThrottle, blockEntity.targetOutputThrottle, (float) Config.OUTPUT_RAMP_SPEED.getAsDouble());
 
         blockEntity.previousClientChargeRemaining = blockEntity.chargeRemaining;
 
@@ -264,7 +256,7 @@ public class GaleDriveBlockEntity extends net.minecraft.world.level.block.entity
         final Vec3 radialOffset = perpendicularA.scale(Math.cos(angle) * distance).add(perpendicularB.scale(Math.sin(angle) * distance));
         final Vec3 position = origin.add(radialOffset);
 
-        final double speed = (MAX_AIRFLOW * output/60);
+        final double speed = (Config.MAX_AIRFLOW.getAsDouble() * output/60);
 
         level.addParticle(
                 new PropellerAirParticleData(),
@@ -311,7 +303,7 @@ public class GaleDriveBlockEntity extends net.minecraft.world.level.block.entity
         ItemStack extracted = inventory.extractItem(WIND_CHARGE_SLOT, 1, false);
         if (extracted.isEmpty()) return false;
 
-        chargeRemaining += CHARGE_CAPACITY;
+        chargeRemaining += (float) Config.CHARGE_CAPACITY.getAsDouble();
         setChanged();
         sync();
 
@@ -323,7 +315,7 @@ public class GaleDriveBlockEntity extends net.minecraft.world.level.block.entity
     private float lastSyncedCharge = -1.0F;
     private void syncChargeWhenNeeded() {
         final boolean changedEnough = Math.abs(chargeRemaining - lastSyncedCharge) >= 0.025F;
-        final boolean reachedBoundary = (chargeRemaining == 0.0F || chargeRemaining == CHARGE_CAPACITY) && chargeRemaining != lastSyncedCharge;
+        final boolean reachedBoundary = (chargeRemaining == 0.0F || chargeRemaining == (float) Config.CHARGE_CAPACITY.getAsDouble()) && chargeRemaining != lastSyncedCharge;
 
         if (!changedEnough && !reachedBoundary) return;
 
@@ -401,15 +393,16 @@ public class GaleDriveBlockEntity extends net.minecraft.world.level.block.entity
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
 
+        float capacity = (float) Config.CHARGE_CAPACITY.getAsDouble();
         float oldChargeRemaining = chargeRemaining;
-        chargeRemaining = Mth.clamp(tag.getFloat("ChargeRemaining"), 0.0F, CHARGE_CAPACITY);
+        chargeRemaining = Mth.clamp(tag.getFloat("ChargeRemaining"), 0.0F, capacity);
 
         previousClientChargeRemaining = oldChargeRemaining;
 
         redstoneStrength = tag.getInt("RedstoneStrength");
         currentOutputThrottle = tag.getFloat("CurrentOutput");
         targetOutputThrottle = tag.getFloat("TargetOutput");
-        chargeRemaining = Mth.clamp(tag.getFloat("ChargeRemaining"), 0.0F, CHARGE_CAPACITY);
+        chargeRemaining = Mth.clamp(tag.getFloat("ChargeRemaining"), 0.0F, capacity);
 
         previousOutputThrottle = currentOutputThrottle;
 

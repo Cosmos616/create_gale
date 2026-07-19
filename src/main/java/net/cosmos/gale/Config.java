@@ -1,36 +1,29 @@
 package net.cosmos.gale;
 
-import java.util.List;
-
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-// An example config class. This is not required, but it's a good idea to have one to keep your config organized.
-// Demonstrates how to use Neo's config APIs
 public class Config {
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 
-    public static final ModConfigSpec.BooleanValue LOG_DIRT_BLOCK = BUILDER
-            .comment("Whether to log the dirt block on common setup")
-            .define("logDirtBlock", true);
+    public static final ModConfigSpec.DoubleValue MAX_THRUST = BUILDER
+            .comment("Maximum thrust output in pico-Newtons (pN) at full throttle.")
+            .defineInRange("maxThrust", 600.0, 0.0, Double.MAX_VALUE);
 
-    public static final ModConfigSpec.IntValue MAGIC_NUMBER = BUILDER
-            .comment("A magic number")
-            .defineInRange("magicNumber", 42, 0, Integer.MAX_VALUE);
+    public static final ModConfigSpec.DoubleValue MAX_AIRFLOW = BUILDER
+            .comment("Maximum airflow in meters per second at full throttle.")
+            .defineInRange("maxAirflow", 60.0, 0.0, Double.MAX_VALUE);
 
-    public static final ModConfigSpec.ConfigValue<String> MAGIC_NUMBER_INTRODUCTION = BUILDER
-            .comment("What you want the introduction message to be for the magic number")
-            .define("magicNumberIntroduction", "The magic number is... ");
+    public static final ModConfigSpec.DoubleValue CHARGE_CAPACITY = BUILDER
+            .comment("Charge capacity provided by a single wind charge. Determines max charge the thruster can hold.")
+            .defineInRange("chargeCapacity", 1.0, 0.0, Double.MAX_VALUE);
 
-    // a list of strings that are treated as resource locations for items
-    public static final ModConfigSpec.ConfigValue<List<? extends String>> ITEM_STRINGS = BUILDER
-            .comment("A list of items to log on common setup.")
-            .defineListAllowEmpty("items", List.of("minecraft:iron_ingot"), () -> "", Config::validateItemName);
+    public static final ModConfigSpec.DoubleValue CHARGE_DRAIN_DIVISOR = BUILDER
+            .comment("Number of ticks it takes to fully drain one charge at 100% throttle. Lower = faster drain.")
+            .defineInRange("chargeDrainDivisor", 200.0, 1.0, Double.MAX_VALUE);
+
+    public static final ModConfigSpec.DoubleValue OUTPUT_RAMP_SPEED = BUILDER
+            .comment("How fast the throttle ramps up/down per tick. Higher = snappier response to redstone changes.")
+            .defineInRange("outputRampSpeed", 0.05, 0.001, 1.0);
 
     static final ModConfigSpec SPEC = BUILDER.build();
-
-    private static boolean validateItemName(final Object obj) {
-        return obj instanceof String itemName && BuiltInRegistries.ITEM.containsKey(ResourceLocation.parse(itemName));
-    }
 }
