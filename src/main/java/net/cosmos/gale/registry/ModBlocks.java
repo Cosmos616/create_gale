@@ -2,6 +2,7 @@ package net.cosmos.gale.registry;
 
 import net.cosmos.gale.Gale;
 import net.cosmos.gale.content.gale_drive.GaleDriveBlock;
+import net.cosmos.gale.content.pneumatic_pipe.PneumaticPipeBlock;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -18,6 +19,8 @@ public class ModBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Gale.MOD_ID);
 
     public static final DeferredBlock<Block> GALE_DRIVE = RegisterBlock("gale_drive", () -> new GaleDriveBlock(BlockBehaviour.Properties.of().sound(SoundType.NETHERITE_BLOCK).noOcclusion()));
+
+    public static final DeferredBlock<Block> PNEUMATIC_PIPE = RegisterBlock("pneumatic_pipe", () -> new PneumaticPipeBlock(BlockBehaviour.Properties.of().sound(SoundType.NETHERITE_BLOCK).noOcclusion()));
 
     private static <T extends Block> DeferredBlock<T> RegisterBlock(String name, Supplier<T> block) {
         DeferredBlock<T> toReturn = BLOCKS.register(name,block);

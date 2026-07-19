@@ -19,6 +19,12 @@ public class ModBlockEntities {
                     ModBlocks.GALE_DRIVE.get()
             ).build(null));
 
+    public static final Supplier<BlockEntityType<GaleDriveBlockEntity>> PNEUMATIC_PIPE =
+            BLOCK_ENTITIES.register("pneumatic_pipe", () -> BlockEntityType.Builder.of(
+                    GaleDriveBlockEntity::new,
+                    ModBlocks.PNEUMATIC_PIPE.get()
+            ).build(null));
+
     public static void register(IEventBus eventBus){
         BLOCK_ENTITIES.register(eventBus);
     }

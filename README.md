@@ -23,3 +23,7 @@ Additional Resources:
 ==========
 Community Documentation: https://docs.neoforged.net/  
 NeoForged Discord: https://discord.neoforged.net/
+
+Notes:
+============
+- If using Chat-gpt, make sure code is not horrendously formated for dust.
