@@ -52,11 +52,7 @@ public class GaleDriveBlock extends BaseEntityBlock {
     public GaleDriveBlock(Properties properties) {
         super(properties);
 
-        registerDefaultState(
-                stateDefinition.any()
-                        .setValue(FACING, Direction.NORTH)
-                        .setValue(POWERED, false)
-        );
+        registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(POWERED, false));
     }
 
     @Override
@@ -65,22 +61,8 @@ public class GaleDriveBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected void neighborChanged(
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Block neighborBlock,
-            BlockPos neighborPos,
-            boolean movedByPiston
-    ) {
-        super.neighborChanged(
-                state,
-                level,
-                pos,
-                neighborBlock,
-                neighborPos,
-                movedByPiston
-        );
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
+        super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
 
         if (level.isClientSide()) return;
 
@@ -99,12 +81,9 @@ public class GaleDriveBlock extends BaseEntityBlock {
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction facing = context.getNearestLookingDirection();
-
         if (context.isSecondaryUseActive()) facing = facing.getOpposite();
 
-        return defaultBlockState()
-                .setValue(FACING, facing)
-                .setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
+        return defaultBlockState().setValue(FACING, facing).setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
     @Override
@@ -113,16 +92,9 @@ public class GaleDriveBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected void onRemove(
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            BlockState newState,
-            boolean movedByPiston
-    ) {
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!state.is(newState.getBlock()) && !level.isClientSide() && level.getBlockEntity(pos) instanceof GaleDriveBlockEntity galeDrive) {
             ItemStackHandler inventory = galeDrive.getInventory();
-
             List<ItemStack> drops = new ArrayList<>();
 
             for (int slot = 0; slot < inventory.getSlots(); slot++) {
@@ -132,7 +104,6 @@ public class GaleDriveBlock extends BaseEntityBlock {
                     drops.add(stack.copy());
                 }
             }
-
             boolean burst = galeDrive.hasLoadedCharge();
 
             if (burst) {
@@ -148,27 +119,12 @@ public class GaleDriveBlock extends BaseEntityBlock {
             }
         }
 
-        super.onRemove(
-                state,
-                level,
-                pos,
-                newState,
-                movedByPiston
-        );
+        super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(
-            ItemStack stack,
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Player player,
-            InteractionHand hand,
-            BlockHitResult hitResult
-    ) {
-        if (!(level.getBlockEntity(pos)
-                instanceof GaleDriveBlockEntity galeDrive)) {
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        if (!(level.getBlockEntity(pos) instanceof GaleDriveBlockEntity galeDrive)) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
 
@@ -181,11 +137,9 @@ public class GaleDriveBlock extends BaseEntityBlock {
                                 false
                         );
 
-                int insertedAmount =
-                        stack.getCount() - remainder.getCount();
+                int insertedAmount = stack.getCount() - remainder.getCount();
 
-                if (insertedAmount > 0
-                        && !player.getAbilities().instabuild) {
+                if (insertedAmount > 0 && !player.getAbilities().instabuild) {
                     stack.shrink(insertedAmount);
                 }
             }
@@ -197,30 +151,17 @@ public class GaleDriveBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected InteractionResult useWithoutItem(
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Player player,
-            BlockHitResult hitResult
-    ) {
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (!player.isShiftKeyDown()) {
             return InteractionResult.PASS;
         }
 
-        if (!(level.getBlockEntity(pos)
-                instanceof GaleDriveBlockEntity galeDrive)) {
+        if (!(level.getBlockEntity(pos) instanceof GaleDriveBlockEntity galeDrive)) {
             return InteractionResult.PASS;
         }
 
         if (!level.isClientSide()) {
-            ItemStack extracted =
-                    galeDrive.getInventory().extractItem(
-                            GaleDriveBlockEntity.WIND_CHARGE_SLOT,
-                            1,
-                            false
-                    );
-
+            ItemStack extracted = galeDrive.getInventory().extractItem(GaleDriveBlockEntity.WIND_CHARGE_SLOT, 1, false);
             if (!extracted.isEmpty()) {
                 if (!player.addItem(extracted)) {
                     player.drop(extracted, false);
@@ -253,22 +194,12 @@ public class GaleDriveBlock extends BaseEntityBlock {
      * Blockbench model and its intended bounds are finalized.
      */
     @Override
-    protected VoxelShape getShape(
-            BlockState state,
-            BlockGetter level,
-            BlockPos pos,
-            CollisionContext context
-    ) {
+    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return Shapes.block();
     }
 
     @Override
-    protected VoxelShape getCollisionShape(
-            BlockState state,
-            BlockGetter level,
-            BlockPos pos,
-            CollisionContext context
-    ) {
+    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return Shapes.block();
     }
 
@@ -280,26 +211,10 @@ public class GaleDriveBlock extends BaseEntityBlock {
 
     @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            Level level,
-            BlockState state,
-            BlockEntityType<T> blockEntityType
-    ) {
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
         if (level.isClientSide()) {
-            return createTickerHelper(
-                    blockEntityType,
-                    ModBlockEntities.GALE_DRIVE.get(),
-                    GaleDriveBlockEntity::clientTick
-            );
+            return createTickerHelper(blockEntityType, ModBlockEntities.GALE_DRIVE.get(), GaleDriveBlockEntity::clientTick);
         }
-
-        return createTickerHelper(
-                blockEntityType,
-                ModBlockEntities.GALE_DRIVE.get(),
-                GaleDriveBlockEntity::serverTick
-        );
-
+        return createTickerHelper(blockEntityType, ModBlockEntities.GALE_DRIVE.get(), GaleDriveBlockEntity::serverTick);
     }
-
-
 }
